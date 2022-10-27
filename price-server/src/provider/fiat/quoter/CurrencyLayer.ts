@@ -1,4 +1,4 @@
-import fetch from 'lib/fetch'
+import fetch, { Headers } from 'lib/fetch'
 import { errorHandler } from 'lib/error'
 import { toQueryString } from 'lib/fetch'
 import { num } from 'lib/num'
@@ -14,17 +14,27 @@ interface Response {
 export class CurrencyLayer extends Quoter {
   private async updatePrices(): Promise<void> {
     const params = {
-      access_key: this.options.apiKey,
+      // access_key: this.options.apiKey,
       source: 'USD',
       currencies: this.symbols
         .map((symbol) => (symbol === 'USD/SDR' ? 'XDR' : symbol.replace('USD/', '')))
         .join(','),
     }
 
+    const myHeaders = new Headers()
+    myHeaders.append('apikey', this.options.apiKey || '')
+
+    // const requestOptions = {
+    //   method: 'GET',
+    //   redirect: 'follow',
+    //   timeout: this.options.timeout,
+    // }
+
     const response: Response = await fetch(
-      `https://apilayer.net/api/live?${toQueryString(params)}`,
+      `https://api.apilayer.com/currency_data/live?${toQueryString(params)}`,
       {
         timeout: this.options.timeout,
+        headers: myHeaders,
       }
     ).then((res) => res.json())
 
