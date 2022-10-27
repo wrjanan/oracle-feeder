@@ -45,7 +45,7 @@ module.exports = {
     kraken: { symbols: ['USDT/USD'] },
   },
   fiatProvider: {
-    fallbackPriority: ['currencylayer', 'alphavantage', 'fixer', 'exchangerate', 'bandprotocol'],
+    fallbackPriority: ['currencylayer', 'alphavantage', 'exchangerate', 'bandprotocol'],
     currencylayer: {
       symbols: fiatSymbols,
       interval: 60 * 1000,
@@ -56,7 +56,7 @@ module.exports = {
     },
     bandprotocol: {
       // DKK is not supported for bandprotocol
-      symbols: fiatSymbols.filter((v) => !v.includes('DKK') && !v.includes('PHP')),
+      symbols: fiatSymbols.filter((v) => !v.includes('MNT') && !v.includes('SDR') && !v.includes('DKK') && !v.includes('PHP')),
       interval: 60 * 1000,
       timeout: 5000,
       // https://data.bandprotocol.com/
