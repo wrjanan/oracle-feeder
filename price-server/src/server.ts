@@ -4,12 +4,11 @@ import * as send from '@polka/send-type'
 import * as bluebird from 'bluebird'
 import * as config from 'config'
 import * as logger from 'lib/logger'
-import { getQuoteCurrency } from 'lib/currency'
-import { getLunaPrices } from 'prices'
+import PricesProvider from './provider/PricesProvider'
 import { countAllRequests } from 'lib/metrics'
+import { getBaseCurrency } from 'lib/currency'
 
 bluebird.config({ longStackTraces: true })
-global.Promise = bluebird
 
 export async function createServer(): Promise<http.Server> {
   const app = polka({})
@@ -20,15 +19,24 @@ export async function createServer(): Promise<http.Server> {
     res.end('OK')
   })
 
-  app.get('/latest', (req, res) => {
-    const lunaPrices = getLunaPrices()
+  app.get('/latest', (_, res) => {
+    const cryptoPrices = PricesProvider.getCryptoPrices()
+    const fiatPrices = PricesProvider.getFiatPrices()
+
+    const prices = [
+      ...Object.keys(cryptoPrices).map((symbol) => ({
+        denom: getBaseCurrency(symbol),
+        price: cryptoPrices[symbol],
+      })),
+      ...Object.keys(fiatPrices).map((symbol) => ({
+        denom: getBaseCurrency(symbol),
+        price: fiatPrices[symbol].toFixed(8),
+      })),
+    ]
 
     send(res, 200, {
       created_at: new Date().toISOString(),
-      prices: Object.keys(lunaPrices).map((symbol) => ({
-        currency: getQuoteCurrency(symbol),
-        price: lunaPrices[symbol].toFixed(18),
-      })),
+      prices,
     })
   })
 

@@ -37,7 +37,10 @@ export class Bithumb extends WebSocketQuoter {
           this.setTrades(symbol, trades)
           this.setPrice(symbol, trades[trades.length - 1].price)
         })
-        .catch(errorHandler)
+        .catch((err) => {
+          logger.error(`${this.constructor.name}[symbol]`, symbol)
+          errorHandler(err)
+        })
     }
     this.isUpdated = true
 
@@ -50,9 +53,7 @@ export class Bithumb extends WebSocketQuoter {
     super.onConnect()
 
     // subscribe transaction
-    const symbols = this.symbols
-      .map((symbol) => `"${getBaseCurrency(symbol)}_${getQuoteCurrency(symbol)}"`)
-      .join(',')
+    const symbols = this.symbols.map((symbol) => `"${getBaseCurrency(symbol)}_${getQuoteCurrency(symbol)}"`).join(',')
 
     this.ws.send(`{"type":"transaction", "symbols":[${symbols}]}`)
   }
@@ -104,16 +105,8 @@ export class Bithumb extends WebSocketQuoter {
       { timeout: this.options.timeout }
     ).then((res) => res.json())
 
-    if (
-      !response ||
-      response.status !== '0000' ||
-      !Array.isArray(response.data) ||
-      response.data.length < 1
-    ) {
-      logger.error(
-        `${this.constructor.name}: wrong api response`,
-        response ? JSON.stringify(response) : 'empty'
-      )
+    if (!response || response.status !== '0000' || !Array.isArray(response.data) || response.data.length < 1) {
+      logger.error(`${this.constructor.name}[symbol]`, symbol)
       throw new Error(`${this.constructor.name}: invalid response`)
     }
 

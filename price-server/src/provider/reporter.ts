@@ -1,9 +1,9 @@
 import * as config from 'config'
-import { reduce } from 'lodash'
+import * as _ from 'lodash'
 import { format, isSameDay, isSameMinute, addMinutes } from 'date-fns'
 import * as logger from 'lib/logger'
 import { createReporter } from 'lib/reporter'
-import { getLunaPrices } from 'prices'
+import PricesProvider from './PricesProvider'
 
 let reporter
 let reportedAt = Date.now()
@@ -14,15 +14,17 @@ export function report(now: number): void {
   }
 
   try {
-    const lunaPrices = reduce(
-      getLunaPrices(),
-      (result, value, key) => Object.assign(result, { [key]: value.toFixed(18) }),
+    const cryptoPrices = _.reduce(
+      PricesProvider.getCryptoPrices(),
+      (result, value, key) => Object.assign(result, { [key]: value }),
       {}
     )
-    // lunaPrices['USDT/KRW'] = getUsdtToKrwRate()?.toFixed(18) || ''
-    // lunaPrices['BTC Premium'] = getBtcPremium()?.toFixed(18) || ''
-
-    logger.info(lunaPrices)
+    const fiatPrices = _.reduce(
+      PricesProvider.getFiatPrices(),
+      (result, value, key) => Object.assign(result, { [key]: value }),
+      {}
+    )
+    const prices = Object.assign(cryptoPrices, fiatPrices)
 
     if (!config.report) {
       reportedAt = now
@@ -30,16 +32,16 @@ export function report(now: number): void {
     }
 
     if (!reporter || !isSameDay(now, reportedAt)) {
-      reporter = createReporter(`report/LunaPrices_${format(now, 'MM-dd_HHmm')}.csv`, [
+      reporter = createReporter(`report/prices_${format(now, 'MM-dd_HHmm')}.csv`, [
         'time',
-        ...Object.keys(lunaPrices).map((quote) => quote),
+        ...Object.keys(prices).map((quote) => quote),
       ])
     }
 
     reporter.writeRecords([
       {
         time: format(Math.floor(addMinutes(now, -1).getTime() / 60000) * 60000, 'MM-dd HH:mm'),
-        ...lunaPrices,
+        ...prices,
       },
     ])
   } catch (error) {

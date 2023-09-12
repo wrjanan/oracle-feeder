@@ -27,16 +27,8 @@ export class Coinone extends Quoter {
       { timeout: this.options.timeout }
     ).then((res) => res.json())
 
-    if (
-      !response ||
-      !response.success ||
-      !Array.isArray(response.data) ||
-      response.data.length < 1
-    ) {
-      logger.error(
-        `${this.constructor.name}: wrong api response`,
-        response ? JSON.stringify(response) : 'empty'
-      )
+    if (!response || !response.success || !Array.isArray(response.data) || response.data.length < 1) {
+      logger.error(`${this.constructor.name}: wrong api response`, response ? JSON.stringify(response) : 'empty')
       throw new Error(`${this.constructor.name}: invalid response`)
     }
 
@@ -60,7 +52,10 @@ export class Coinone extends Quoter {
           this.setTrades(symbol, trades)
           this.setPrice(symbol, trades[trades.length - 1].price)
         })
-        .catch(errorHandler)
+        .catch((err) => {
+          logger.error(`${this.constructor.name}[symbol]`, symbol)
+          errorHandler(err)
+        })
     }
 
     return true

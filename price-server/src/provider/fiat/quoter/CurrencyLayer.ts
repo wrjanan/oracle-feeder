@@ -16,43 +16,24 @@ export class CurrencyLayer extends Quoter {
     const params = {
       // access_key: this.options.apiKey,
       source: 'USD',
-      currencies: this.symbols
-        .map((symbol) => (symbol === 'USD/SDR' ? 'XDR' : symbol.replace('USD/', '')))
-        .join(','),
+      currencies: this.symbols.map((symbol) => (symbol === 'SDR/USD' ? 'XDR' : symbol.replace('/USD', ''))).join(','),
     }
 
-    const myHeaders = new Headers()
-    myHeaders.append('apikey', this.options.apiKey || '')
-
-    // const requestOptions = {
-    //   method: 'GET',
-    //   redirect: 'follow',
-    //   timeout: this.options.timeout,
-    // }
-
-    const response: Response = await fetch(
-      `https://api.apilayer.com/currency_data/live?${toQueryString(params)}`,
-      {
-        timeout: this.options.timeout,
-        headers: myHeaders,
-      }
-    ).then((res) => res.json())
+    const response: Response = await fetch(`https://apilayer.net/api/live?${toQueryString(params)}`, {
+      timeout: this.options.timeout,
+    }).then((res) => res.json())
 
     if (!response || !response.success || !response.quotes) {
-      logger.error(
-        `${this.constructor.name}: wrong api response`,
-        response ? JSON.stringify(response) : 'empty'
-      )
+      logger.error(`${this.constructor.name}: wrong api response`, response ? JSON.stringify(response) : 'empty')
       throw new Error('Invalid response from CurrencyLayer')
     }
 
     // update last trades
     for (const symbol of Object.keys(response.quotes)) {
-      const convertedSymbol = symbol.replace('USD', 'USD/')
-      this.setPrice(
-        convertedSymbol === 'USD/XDR' ? 'USD/SDR' : convertedSymbol,
-        num(response.quotes[symbol])
-      )
+      const convertedSymbol = symbol.replace('USD', '') + '/USD'
+      const convertedPrice = num(1).dividedBy(num(response.quotes[symbol]))
+
+      this.setPrice(convertedSymbol === 'XDR/USD' ? 'SDR/USD' : convertedSymbol, convertedPrice)
     }
   }
 

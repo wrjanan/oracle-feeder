@@ -45,9 +45,11 @@ export class Huobi extends WebSocketQuoter {
 
           this.setTrades(symbol, trades)
           this.setPrice(symbol, trades[trades.length - 1].price)
-          // this.calculateKRWPrice(symbol)
         })
-        .catch(errorHandler)
+        .catch((err) => {
+          logger.error(`${this.constructor.name}[symbol]`, symbol)
+          errorHandler(err)
+        })
     }
     this.isUpdated = true
 
@@ -99,7 +101,6 @@ export class Huobi extends WebSocketQuoter {
 
       this.setTrade(symbol, timestamp, price, volume, true)
       this.setPrice(symbol, price)
-      // this.calculateKRWPrice(symbol)
 
       this.isUpdated = true
     } else {
@@ -116,20 +117,12 @@ export class Huobi extends WebSocketQuoter {
 
     // Get candles from Huobi
     // reference: https://huobiapi.github.io/docs/spot/v1/en/#get-klines-candles
-    const response = await fetch(
-      `https://api.huobi.pro/market/history/kline?${toQueryString(params)}`
-    ).then((res) => res.json())
+    const response = await fetch(`https://api.huobi.pro/market/history/kline?${toQueryString(params)}`).then((res) =>
+      res.json()
+    )
 
-    if (
-      !response ||
-      response.status !== 'ok' ||
-      !Array.isArray(response.data) ||
-      response.data.length < 1
-    ) {
-      logger.error(
-        `${this.constructor.name}: invalid api response:`,
-        response ? JSON.stringify(response) : 'empty'
-      )
+    if (!response || response.status !== 'ok' || !Array.isArray(response.data) || response.data.length < 1) {
+      logger.error(`${this.constructor.name}: invalid api response:`, response ? JSON.stringify(response) : 'empty')
       throw new Error(`${this.constructor.name}: invalid response`)
     }
 

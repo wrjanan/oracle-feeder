@@ -13,34 +13,27 @@ interface Response {
 
 export class AlphaVantage extends Quoter {
   private async updateLastPrice(symbol: string): Promise<void> {
-    const quote = symbol === 'USD/SDR' ? 'XDR' : symbol.replace('USD/', '')
+    const quote = symbol === 'SDR/USD' ? 'XDR' : symbol.replace('/USD', '')
     const params = {
       function: 'CURRENCY_EXCHANGE_RATE',
       from_currency: 'USD',
       to_currency: quote,
       apikey: this.options.apiKey,
     }
-
-    const response: Response = await fetch(
-      `https://www.alphavantage.co/query?${toQueryString(params)}`,
-      {
-        timeout: this.options.timeout,
-      }
-    ).then((res) => res.json())
-
+    const response: Response = await fetch(`https://www.alphavantage.co/query?${toQueryString(params)}`, {
+      timeout: this.options.timeout,
+    }).then((res) => res.json())
     if (
       !response ||
       !response['Realtime Currency Exchange Rate'] ||
       !response['Realtime Currency Exchange Rate']['5. Exchange Rate']
     ) {
-      logger.error(
-        `${this.constructor.name}: wrong api response`,
-        response ? JSON.stringify(response) : 'empty'
-      )
+      logger.error(`${this.constructor.name}: wrong api response`, response ? JSON.stringify(response) : 'empty')
       throw new Error('Invalid response from AlphaVantage')
     }
 
-    this.setPrice(symbol, num(response['Realtime Currency Exchange Rate']['5. Exchange Rate']))
+    const convertedPrice = num(1).dividedBy(num(response['Realtime Currency Exchange Rate']['5. Exchange Rate']))
+    this.setPrice(symbol, convertedPrice)
   }
 
   protected async update(): Promise<boolean> {
