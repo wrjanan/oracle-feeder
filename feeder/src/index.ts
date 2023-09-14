@@ -2,6 +2,7 @@ import { ArgumentParser } from 'argparse'
 import { vote } from './vote'
 import { updateKey } from './updateKey'
 import * as packageInfo from '../package.json'
+import 'dotenv/config' 
 
 function registerCommands(parser: ArgumentParser): void {
   const subparsers = parser.addSubparsers({
