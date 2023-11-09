@@ -43,7 +43,7 @@ module.exports = {
       // 'bitfinex',
       // 'huobi',
       // 'kucoin',
-      'coinGecko', // required for USDT/USDC/BUSD to USD quotes.
+      'coinGecko', // required for USDT/USDC to USD quotes.
     ],
     coinGecko: {
       interval: 6 * 1000,
@@ -53,7 +53,6 @@ module.exports = {
         'BNB/USD',
         'USDT/USD',
         'USDC/USD',
-        'BUSD/USD',
         'DAI/USD',
         'XRP/USD',
         'DOGE/USD',
@@ -194,132 +193,53 @@ module.exports = {
         'DOGE/USDT',
         'ANKR/USDT',
         'CHZ/USDT',
-        'BNB/BUSD',
-        'BTC/BUSD',
-        'BUSD/USDT',
         'XTZ/USDT',
-        'XRP/BUSD',
-        'ETH/BUSD',
-        'LTC/BUSD',
-        'LINK/BUSD',
-        'ETC/BUSD',
         'STX/USDT',
         'KAVA/USDT',
-        'TRX/BUSD',
-        'EOS/BUSD',
-        'XLM/BUSD',
-        'ADA/BUSD',
-        'VET/BUSD',
-        'ATOM/BUSD',
-        'DASH/BUSD',
-        'NEO/BUSD',
-        'XTZ/BUSD',
-        'BAT/BUSD',
-        'ENJ/BUSD',
-        'ALGO/BUSD',
-        'XMR/BUSD',
-        'ZEC/BUSD',
-        'SOL/USDT',
-        'SOL/BUSD',
-        'MATIC/BUSD',
-        'ZIL/BUSD',
-        'LRC/BUSD',
         'LRC/USDT',
-        'COMP/BUSD',
         'COMP/USDT',
-        'SNX/BUSD',
         'SNX/USDT',
         'MKR/USDT',
-        'MKR/BUSD',
         'DAI/USDT',
-        'DAI/BUSD',
-        'RUNE/BUSD',
-        'MANA/BUSD',
-        'DOGE/BUSD',
         'DCR/USDT',
         'MANA/USDT',
-        'CRV/BUSD',
         'CRV/USDT',
         'SAND/USDT',
-        'SAND/BUSD',
-        'DOT/BUSD',
         'DOT/USDT',
-        'LUNA/BUSD',
         'LUNA/USDT',
-        'EGLD/BUSD',
         'EGLD/USDT',
         'RUNE/USDT',
-        'UNI/BUSD',
         'UNI/USDT',
-        'AVAX/BUSD',
         'AVAX/USDT',
-        'CAKE/BUSD',
-        'AAVE/BUSD',
         'AAVE/USDT',
-        'NEAR/BUSD',
         'NEAR/USDT',
-        'FIL/BUSD',
         'FIL/USDT',
-        'INJ/BUSD',
         'INJ/USDT',
         'CTK/USDT',
-        'AXS/BUSD',
         'AXS/USDT',
         'GRT/USDT',
         '1INCH/USDT',
-        'USDC/BUSD',
-        'FXS/BUSD',
         'CAKE/USDT',
-        '1INCH/BUSD',
-        'GRT/BUSD',
-        'CHZ/BUSD',
         'SHIB/USDT',
-        'SHIB/BUSD',
-        'ICP/BUSD',
         'ICP/USDT',
-        'AR/BUSD',
         'AR/USDT',
-        'FTM/BUSD',
-        'THETA/BUSD',
-        'KAVA/BUSD',
-        'KLAY/BUSD',
         'KLAY/USDT',
-        'QNT/BUSD',
         'QNT/USDT',
-        'FLOW/BUSD',
         'FLOW/USDT',
-        'XEC/BUSD',
-        'MINA/BUSD',
         'MINA/USDT',
         'DYDX/USDT',
-        'DYDX/BUSD',
-        'STX/BUSD',
-        'SCRT/BUSD',
-        'ENS/BUSD',
         'ENS/USDT',
-        'ANKR/BUSD',
-        'AMP/BUSD',
         'AMP/USDT',
-        'CVX/BUSD',
         'CVX/USDT',
-        'IMX/BUSD',
         'IMX/USDT',
         'SCRT/USDT',
-        'KDA/BUSD',
         'APE/USDT',
-        'APE/BUSD',
         'NEXO/USDT',
-        'NEXO/BUSD',
-        'LDO/BUSD',
         'LDO/USDT',
         'USTC/USDT',
-        'USTC/BUSD',
         'LUNC/USDT',
-        'LUNC/BUSD',
-        'GMX/BUSD',
         'GMX/USDT',
         'APT/USDT',
-        'APT/BUSD',
         'OSMO/USDT',
       ],
     },
@@ -470,7 +390,6 @@ module.exports = {
         'SCRT/USDT',
         'LUNC/USDT',
         'USTC/USDT',
-        'BUSD/USDT',
         'APT/USDT',
         'TON/USDT',
       ],
@@ -599,20 +518,21 @@ module.exports = {
   fiatProvider: {
     fallbackPriority: [
       /* Providers who requires payment to obtain API key */
+      // 'exchangerate',
       // 'fastforex',
       // 'currencylayer',
       // 'fixer',
       // 'alphavantage'
       /* Free providers */
-      'exchangerate',
+      'imf',
       'frankfurter',
       'fer',
     ],
-    // https://exchangerate.host/
-    exchangerate: {
-      symbols: fiatSymbols,
-      interval: 30 * 1000,
-      timeout: 5000,
+    // https://www.imf.org/ For daily updates on the SDR/USD rate only.
+    imf: {
+      symbols: ['SDR/USD'],
+      interval: 60 * 5 * 1000,
+      timeout: 10000,
     },
     // https://fer.ee/
     fer: {
@@ -626,8 +546,8 @@ module.exports = {
       interval: 30 * 1000,
       timeout: 5000,
     },
-    // https://fastforex.readme.io
-    // price: $9/month
+    // https://fastforex.io
+    // recommended plan: $9/month
     fastforex: {
       symbols: fiatSymbols,
       interval: 60 * 1000,
@@ -635,24 +555,32 @@ module.exports = {
       apiKey: '', // necessary
     },
     // https://currencylayer.com/product
-    // recommend: Enterprise (60second Updates): $59.99/month
+    // recommended plan: Enterprise $50.99/month
     currencylayer: {
       symbols: fiatSymbols,
       interval: 60 * 1000,
       timeout: 5000,
       apiKey: '', // necessary
     },
-    // https://www.alphavantage.co/premium/
-    // recommend: 150 API request per minute: $99.99/month
-    alphavantage: {
+    // https://exchangerate.host/
+    // recommended plan: Business $79.99/month
+    exchangerate: {
+      symbols: fiatSymbols,
+      interval: 30 * 1000,
+      timeout: 5000,
+      apiKey: '', // required
+    },
+    // https://fixer.io/product
+    // recommend plan: professional plus(60second Updates): $79.99/month
+    fixer: {
       symbols: fiatSymbols,
       interval: 60 * 1000,
       timeout: 5000,
       apiKey: '', // necessary
     },
-    // https://fixer.io/product
-    // recommend: professional plus(60second Updates): $99.99/month
-    fixer: {
+    // https://www.alphavantage.co/premium/
+    // recommend plan: 150 API request per minute: $99.99/month
+    alphavantage: {
       symbols: fiatSymbols,
       interval: 60 * 1000,
       timeout: 5000,
